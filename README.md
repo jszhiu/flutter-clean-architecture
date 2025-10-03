@@ -1,46 +1,38 @@
-Clean Architecture (MVVM + BLoC + Dio) — Cross‑Platform Setup
+Flutter Clean Architecture (MVVM + BLoC + Dio)
 
-![Visitors](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https://github.com/Amir-beigi-84/flutter-clean-architecture&count_bg=%2379C83D&title_bg=%23555555&icon=flutter.svg&icon_color=%23FFFFFF&title=visits&edge_flat=false)
-![GitHub stars](https://img.shields.io/github/stars/Amir-beigi-84/flutter-clean-architecture?style=social)
-![GitHub forks](https://img.shields.io/github/forks/Amir-beigi-84/flutter-clean-architecture?style=social)
-![Open Issues](https://img.shields.io/github/issues/Amir-beigi-84/flutter-clean-architecture)
-![Last Commit](https://img.shields.io/github/last-commit/Amir-beigi-84/flutter-clean-architecture)
-![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)
+<p align="center">
+  <em>One-command scaffold for a pragmatic clean Flutter stack.</em>
+</p>
 
-Scripts by Platform
+<p align="center">
+  <a href="https://github.com/Amir-beigi-84/flutter-clean-architecture/stargazers">
+    <img alt="Stars" src="https://img.shields.io/github/stars/Amir-beigi-84/flutter-clean-architecture?style=flat-square&color=ffc83d">
+  </a>
+  <a href="https://github.com/Amir-beigi-84/flutter-clean-architecture/issues">
+    <img alt="Issues" src="https://img.shields.io/github/issues/Amir-beigi-84/flutter-clean-architecture?style=flat-square">
+  </a>
+  <img alt="Last Commit" src="https://img.shields.io/github/last-commit/Amir-beigi-84/flutter-clean-architecture?style=flat-square">
+  <img alt="License" src="https://img.shields.io/github/license/Amir-beigi-84/flutter-clean-architecture?style=flat-square">
+  <img alt="PRs Welcome" src="https://img.shields.io/badge/PRs-welcome-28a745?style=flat-square">
+</p>
 
-- Windows (PowerShell): `scripts\\setup-windows.ps1`
-- macOS/Linux (Bash/Zsh): `scripts/setup-unix.sh`
-- Linux/macOS (fish): `scripts/setup-fish.fish`
+Quick Start
 
-Usage
+- Create app: `flutter create my_app && cd my_app`
+- Copy this repo’s `scripts/` into your project (or clone and run from inside your app).
+- Run one setup script from your project root:
+  - Windows (PowerShell): `powershell -ExecutionPolicy Bypass -File scripts\setup-windows.ps1`
+  - macOS/Linux (Bash/Zsh): `chmod +x scripts/setup-unix.sh && scripts/setup-unix.sh`
+  - fish: `chmod +x scripts/setup-fish.fish && fish scripts/setup-fish.fish`
 
-- Create your Flutter app first:
-  - Run: `flutter create my_app`
-  - `cd my_app`
-- Windows (PowerShell):
-  - `powershell -ExecutionPolicy Bypass -File .\scripts\setup-windows.ps1`
-- macOS/Linux (Bash/Zsh):
-  - `chmod +x ./scripts/setup-unix.sh`
-  - `./scripts/setup-unix.sh`
-- Linux fish shell (also works on macOS fish):
-  - `chmod +x ./scripts/setup-fish.fish`
-  - `fish ./scripts/setup-fish.fish`
+What You Get
 
-What this does
+- Dependencies wired: `get_it`, `flutter_bloc`, `dio`, `fpdart`, `equatable`, `connectivity_plus`, `json_*`.
+- Clean layers scaffolded under `lib/src/` with a sample `todo` feature.
+- DI (`get_it`), `Dio` client with logging, and `build_runner` codegen.
+- Minimal `main.dart` bootstrap and formatted code.
 
-- Adds dependencies: `get_it`, `flutter_bloc`, `dio`, `fpdart`, `equatable`, `connectivity_plus`, `json_annotation`, etc.
-- Creates clean layers: `data`, `domain`, `presentation` under `lib/src/features/<feature>`.
-- Adds DI (`get_it`) and network client with `dio` + logging interceptor.
-- Scaffolds a sample `Todo` feature, BLoC as ViewModel (MVVM style), and a simple UI page.
-- Replaces the Flutter counter template `lib/main.dart` with a minimal bootstrap.
-- Runs `build_runner` for JSON codegen and formats code.
+Run
 
-Reference
+- `flutter run -d windows|macos|linux` (or any device)
 
-- Based on and aligned with: https://medium.com/@yamen.abd98/clean-architecture-in-flutter-mvvm-bloc-dio-79b1615530e1 (with some pragmatic improvements for Windows dev flow).
-
-Next steps
-
-- Run: `flutter run -d windows|macos|linux` (or any device)
-- Add more features under `lib/src/features/<your_feature>` following the same pattern.
