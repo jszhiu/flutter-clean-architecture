@@ -47,17 +47,6 @@ Why
 - Consistent structure for multi-feature apps.
 - Easy to tear out or extend pieces as you go.
 
-Screenshots
-
-<p align="center">
-  <img alt="Architecture Diagram" src="docs/images/architecture.svg" width="720">
-</p>
-
-- Todo List (Light): `docs/screenshots/todo_list_light.png`
-- Todo List (Dark): `docs/screenshots/todo_list_dark.png`
-
-Tip: Drop your real screenshots into `docs/screenshots/` with the names above to render them here automatically.
-
 Code Snippets
 
 Entity
