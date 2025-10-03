@@ -1,5 +1,18 @@
 Clean Architecture (MVVM + BLoC + Dio) — Cross‑Platform Setup
 
+![Visitors](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https://github.com/Amir-beigi-84/flutter-clean-architecture&count_bg=%2379C83D&title_bg=%23555555&icon=flutter.svg&icon_color=%23FFFFFF&title=visits&edge_flat=false)
+![GitHub stars](https://img.shields.io/github/stars/Amir-beigi-84/flutter-clean-architecture?style=social)
+![GitHub forks](https://img.shields.io/github/forks/Amir-beigi-84/flutter-clean-architecture?style=social)
+![Open Issues](https://img.shields.io/github/issues/Amir-beigi-84/flutter-clean-architecture)
+![Last Commit](https://img.shields.io/github/last-commit/Amir-beigi-84/flutter-clean-architecture)
+![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)
+
+Scripts by Platform
+
+- Windows (PowerShell): `scripts\\setup-windows.ps1`
+- macOS/Linux (Bash/Zsh): `scripts/setup-unix.sh`
+- Linux/macOS (fish): `scripts/setup-fish.fish`
+
 Usage
 
 - Create your Flutter app first:
