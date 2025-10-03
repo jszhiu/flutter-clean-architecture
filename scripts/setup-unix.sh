@@ -1,9 +1,143 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-step() { echo -e "\033[36m[SETUP]\033[0m $*"; }
-ok()   { echo -e "\033[32m[OK]\033[0m $*"; }
-warn() { echo -e "\033[33m[WARN]\033[0m $*"; }
+# -------- UI helpers --------
+cyan() { printf "\033[36m%s\033[0m" "$1"; }
+green() { printf "\033[32m%s\033[0m" "$1"; }
+yellow() { printf "\033[33m%s\033[0m" "$1"; }
+bold() { printf "\033[1m%s\033[0m" "$1"; }
+
+step() { echo -e "$(cyan [SETUP]) $*"; }
+ok()   { echo -e "$(green [OK]) $*"; }
+warn() { echo -e "$(yellow [WARN]) $*"; }
+
+print_banner() {
+  echo
+  echo "$(bold "──────────────────────────────────────────────────────────────")"
+  echo "$(bold "      Flutter Clean Architecture ▸ Generator (M3)")"
+  echo "$(bold "──────────────────────────────────────────────────────────────")"
+  echo
+}
+
+STATE_MGMT=""
+APP_NAME="Clean MVVM App"
+AUTO=false
+PROFILE="standard" # minimal|standard|full
+SKIP_INSTALL=false
+SKIP_CODEGEN=false
+ROUTER="" # none|go_router
+
+usage() {
+  cat <<EOF
+Usage: scripts/setup-unix.sh [--state bloc|riverpod|provider|getx] [--name "App Name"] [--router go_router|none] [--profile minimal|standard|full] [--skip-install] [--skip-codegen] [--auto]
+
+Options:
+  --state    Choose state management (interactive if omitted)
+  --name     Application display name (default: ${APP_NAME})
+  --router   Choose router (go_router|none). Default: ask (auto: detect)
+  --profile  Dependency profile (minimal|standard|full). Default: standard
+  --skip-install  Do not add pub dependencies (write files only)
+  --skip-codegen  Do not run build_runner/format steps
+  -h, --help Show this help
+EOF
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --state)
+      STATE_MGMT=${2:-}
+      shift 2
+      ;;
+    --name)
+      APP_NAME=${2:-"${APP_NAME}"}
+      shift 2
+      ;;
+    --profile)
+      PROFILE=${2:-standard}
+      shift 2
+      ;;
+    --router)
+      ROUTER=${2:-}
+      shift 2
+      ;;
+    --skip-install)
+      SKIP_INSTALL=true
+      shift 1
+      ;;
+    --skip-codegen)
+      SKIP_CODEGEN=true
+      shift 1
+      ;;
+    --auto)
+      AUTO=true
+      shift 1
+      ;;
+  -h|--help)
+      usage; exit 0;
+      ;;
+    *)
+      warn "Unknown arg: $1"; usage; exit 1;
+      ;;
+  esac
+done
+
+print_banner
+
+if [[ "${AUTO}" == true ]]; then
+  if [[ -f pubspec.yaml ]]; then
+    # Detect app name
+    nm=$(awk -F: '/^name:/ {print $2; exit}' pubspec.yaml | xargs || true)
+    [[ -n "$nm" ]] && APP_NAME="$nm"
+    # Detect state management
+    if grep -q '^\s*flutter_riverpod\s*:' pubspec.yaml; then STATE_MGMT=riverpod
+    elif grep -q '^\s*provider\s*:' pubspec.yaml; then STATE_MGMT=provider
+    elif grep -q '^\s*get\s*:' pubspec.yaml; then STATE_MGMT=getx
+    else STATE_MGMT=bloc
+    fi
+    # Detect router
+    if grep -q '^\s*go_router\s*:' pubspec.yaml; then ROUTER=go_router; else ROUTER=none; fi
+  else
+    STATE_MGMT=bloc
+    ROUTER=none
+  fi
+fi
+
+if [[ -z "${STATE_MGMT}" ]]; then
+  echo "Choose state management:";
+  PS3="$(cyan '› ')"
+  select sm in "BLoC/Cubit" "Riverpod" "Provider" "GetX"; do
+    case $REPLY in
+      1) STATE_MGMT="bloc"; break;;
+      2) STATE_MGMT="riverpod"; break;;
+      3) STATE_MGMT="provider"; break;;
+      4) STATE_MGMT="getx"; break;;
+      *) echo "Please enter 1-4";;
+    esac
+  done
+fi
+
+case "${STATE_MGMT}" in
+  bloc|riverpod|provider|getx) ;;
+  *) echo "Invalid --state: ${STATE_MGMT}. Use bloc|riverpod|provider|getx"; exit 1;;
+esac
+
+if [[ -z "${ROUTER}" && "${AUTO}" != true ]]; then
+  echo "Use go_router for navigation?";
+  PS3="$(cyan '› ')"
+  select r in "No (Navigator)" "Yes (go_router)"; do
+    case $REPLY in
+      1) ROUTER="none"; break;;
+      2) ROUTER="go_router"; break;;
+      *) echo "Please enter 1-2";;
+    esac
+  done
+fi
+
+case "${ROUTER}" in
+  none|go_router) ;;
+  "") ROUTER=none;;
+  *) echo "Invalid --router: ${ROUTER}. Use go_router|none"; exit 1;;
+esac
 
 step "Validating environment (Flutter/Dart)"
 command -v flutter >/dev/null 2>&1 || { echo "Flutter not found in PATH" >&2; exit 1; }
@@ -12,13 +146,42 @@ command -v dart >/dev/null 2>&1 || { echo "Dart not found in PATH" >&2; exit 1; 
 [[ -f pubspec.yaml ]] || { echo "pubspec.yaml not found. Run inside your Flutter project root." >&2; exit 1; }
 if ! grep -qE '^dependencies:[[:space:]]*$' pubspec.yaml; then warn "Could not verify dependencies: section; proceeding"; fi
 
-step "Adding runtime dependencies"
-deps=( get_it fpdart dio connectivity_plus pretty_dio_logger shared_preferences flutter_secure_storage flutter_bloc equatable json_annotation )
-for d in "${deps[@]}"; do dart pub add "$d"; done
+step "Resolving dependencies profile (${PROFILE}) for ${STATE_MGMT}"
+deps="get_it dio equatable"
+case "${STATE_MGMT}" in
+  bloc) deps+=" flutter_bloc";;
+  riverpod) deps+=" flutter_riverpod";;
+  provider) deps+=" provider";;
+  getx) deps+=" get";;
+esac
+if [[ "${PROFILE}" == "minimal" ]]; then
+  deps+=" fpdart"
+elif [[ "${PROFILE}" == "standard" ]]; then
+  deps+=" connectivity_plus pretty_dio_logger fpdart"
+else # full
+  deps+=" connectivity_plus pretty_dio_logger shared_preferences flutter_secure_storage fpdart json_annotation"
+fi
+if [[ "${ROUTER}" == "go_router" ]]; then
+  deps+=" go_router"
+fi
+
+if [[ "${SKIP_INSTALL}" == false ]]; then
+  # shellcheck disable=SC2086
+  dart pub add $deps
+else
+  warn "Skipping dependency installation (--skip-install)"
+fi
 
 step "Adding dev dependencies"
-dev_deps=( build_runner json_serializable flutter_lints )
-for d in "${dev_deps[@]}"; do dart pub add -d "$d"; done
+if [[ "${SKIP_INSTALL}" == false ]]; then
+  if [[ "${PROFILE}" == "full" ]]; then
+    dart pub add -d flutter_lints build_runner json_serializable
+  elif [[ "${PROFILE}" == "standard" ]]; then
+    dart pub add -d flutter_lints
+  else
+    warn "Skipping dev dependencies for minimal profile"
+  fi
+fi
 
 step "Creating folders"
 dirs=(
@@ -58,7 +221,7 @@ EOF
 step "Writing core files"
 cat > lib/src/core/constants/app_constants.dart << 'EOF'
 class AppConstants {
-  static const appName = 'Clean MVVM App';
+  static const appName = 'APP_NAME_PLACEHOLDER';
   static const apiBaseUrl = 'https://jsonplaceholder.typicode.com';
 }
 EOF
@@ -117,6 +280,80 @@ class DioClient {
   final Dio _dio; Dio get instance => _dio;
 }
 EOF
+
+cat > lib/src/core/theme/app_theme.dart << 'EOF'
+import 'package:flutter/material.dart';
+
+final _lightSeed = const Color(0xFF4F46E5); // Indigo
+final _darkSeed = const Color(0xFF22D3EE);  // Cyan
+
+ThemeData buildLightTheme() {
+  final scheme = ColorScheme.fromSeed(seedColor: _lightSeed, brightness: Brightness.light);
+  return ThemeData(
+    colorScheme: scheme,
+    useMaterial3: true,
+    appBarTheme: AppBarTheme(backgroundColor: scheme.surface, foregroundColor: scheme.onSurface, elevation: 0),
+    cardTheme: CardTheme(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    ),
+    listTileTheme: const ListTileThemeData(contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8)),
+  );
+}
+
+ThemeData buildDarkTheme() {
+  final scheme = ColorScheme.fromSeed(seedColor: _darkSeed, brightness: Brightness.dark);
+  return ThemeData(
+    colorScheme: scheme,
+    useMaterial3: true,
+    appBarTheme: AppBarTheme(backgroundColor: scheme.surface, foregroundColor: scheme.onSurface, elevation: 0),
+    cardTheme: CardTheme(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    ),
+    listTileTheme: const ListTileThemeData(contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8)),
+  );
+}
+
+class GradientScaffold extends StatelessWidget {
+  const GradientScaffold({super.key, required this.appBar, required this.child});
+  final PreferredSizeWidget appBar; final Widget child;
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [cs.primary.withOpacity(.10), cs.secondary.withOpacity(.08)],
+          begin: Alignment.topLeft, end: Alignment.bottomRight,
+        ),
+      ),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: appBar,
+        body: child,
+      ),
+    );
+  }
+}
+EOF
+
+if [[ "${ROUTER}" == "go_router" ]]; then
+  step "Writing router (go_router)"
+  mkdir -p lib/src/core/router
+  cat > lib/src/core/router/app_router.dart << 'EOF'
+import 'package:go_router/go_router.dart';
+import '../../features/todo/presentation/pages/todo_list_page.dart';
+
+final GoRouter appRouter = GoRouter(
+  routes: <RouteBase>[
+    GoRoute(path: '/', builder: (_, __) => const TodoListPage()),
+  ],
+);
+EOF
+fi
 
 cat > lib/src/core/usecase/usecase.dart << 'EOF'
 import 'package:fpdart/fpdart.dart';
@@ -248,8 +485,12 @@ class TodoRepositoryImpl implements TodoRepository {
 }
 EOF
 
-step "Writing feature: Todo (presentation)"
-cat > lib/src/features/todo/presentation/cubit/todo_list_state.dart << 'EOF'
+step "Writing feature: Todo (presentation) for ${STATE_MGMT}"
+
+case "${STATE_MGMT}" in
+  bloc)
+    mkdir -p lib/src/features/todo/presentation/cubit lib/src/features/todo/presentation/pages
+    cat > lib/src/features/todo/presentation/cubit/todo_list_state.dart << 'EOF'
 import 'package:equatable/equatable.dart';
 
 enum ViewStatus { idle, loading, success, error }
@@ -263,7 +504,7 @@ class TodoListState extends Equatable {
 }
 EOF
 
-cat > lib/src/features/todo/presentation/cubit/todo_list_cubit.dart << 'EOF'
+    cat > lib/src/features/todo/presentation/cubit/todo_list_cubit.dart << 'EOF'
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/usecase/usecase.dart';
 import '../../domain/usecases/get_todos.dart';
@@ -283,10 +524,11 @@ class TodoListCubit extends Cubit<TodoListState> {
 }
 EOF
 
-cat > lib/src/features/todo/presentation/pages/todo_list_page.dart << 'EOF'
+    cat > lib/src/features/todo/presentation/pages/todo_list_page.dart << 'EOF'
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/di/injection.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../domain/usecases/get_todos.dart';
 import '../cubit/todo_list_cubit.dart';
 import '../cubit/todo_list_state.dart';
@@ -297,31 +539,17 @@ class TodoListPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => TodoListCubit(sl<GetTodos>())..load(),
-      child: Scaffold(
+      child: GradientScaffold(
         appBar: AppBar(title: const Text('Todos')),
-        body: BlocBuilder<TodoListCubit, TodoListState>(
+        child: BlocBuilder<TodoListCubit, TodoListState>(
           builder: (context, state) {
             switch (state.status) {
               case ViewStatus.loading:
                 return const Center(child: CircularProgressIndicator());
               case ViewStatus.error:
-                return Center(child: Text(state.error ?? 'Something went wrong'));
+                return Center(child: _ErrorView(message: state.error ?? 'Something went wrong'));
               case ViewStatus.success:
-                return ListView.separated(
-                  itemBuilder: (_, i) {
-                    final todo = state.items[i];
-                    return ListTile(
-                      leading: Icon(
-                        (todo.completed as bool) ? Icons.check_circle : Icons.circle_outlined,
-                        color: (todo.completed as bool) ? Colors.green : Colors.grey,
-                      ),
-                      title: Text(todo.title as String),
-                      subtitle: Text('ID: ${todo.id}'),
-                    );
-                  },
-                  separatorBuilder: (_, __) => const Divider(height: 0),
-                  itemCount: state.items.length,
-                );
+                return _TodoList(items: state.items);
               case ViewStatus.idle:
               default:
                 return const SizedBox.shrink();
@@ -332,13 +560,409 @@ class TodoListPage extends StatelessWidget {
     );
   }
 }
+
+class _TodoList extends StatelessWidget {
+  const _TodoList({required this.items});
+  final List<dynamic> items;
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      itemCount: items.length,
+      itemBuilder: (_, i) {
+        final todo = items[i];
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+          child: Card(
+            child: ListTile(
+              leading: CircleAvatar(
+                backgroundColor: (todo.completed as bool) ? cs.primaryContainer : cs.surfaceVariant,
+                child: Icon(
+                  (todo.completed as bool) ? Icons.check_rounded : Icons.circle_outlined,
+                  color: (todo.completed as bool) ? cs.onPrimaryContainer : cs.onSurfaceVariant,
+                ),
+              ),
+              title: Text(todo.title as String),
+              subtitle: Text('ID: ${todo.id}'),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _ErrorView extends StatelessWidget {
+  const _ErrorView({required this.message});
+  final String message;
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.error_outline, color: cs.error, size: 48),
+          const SizedBox(height: 12),
+          Text(message),
+        ],
+      ),
+    );
+  }
+}
+EOF
+    ;;
+  riverpod)
+    mkdir -p lib/src/features/todo/presentation/providers lib/src/features/todo/presentation/pages
+    cat > lib/src/features/todo/presentation/providers/todo_list_provider.dart << 'EOF'
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/di/injection.dart';
+import '../../../../core/usecase/usecase.dart';
+import '../../domain/entities/todo.dart';
+import '../../domain/usecases/get_todos.dart';
+
+final getTodosProvider = Provider<GetTodos>((_) => sl<GetTodos>());
+
+final todoListProvider = StateNotifierProvider<TodoListNotifier, AsyncValue<List<Todo>>>(
+  (ref) => TodoListNotifier(ref.read(getTodosProvider))..load(),
+);
+
+class TodoListNotifier extends StateNotifier<AsyncValue<List<Todo>>> {
+  TodoListNotifier(this._getTodos) : super(const AsyncValue.loading());
+  final GetTodos _getTodos;
+  Future<void> load() async {
+    state = const AsyncLoading();
+    final res = await _getTodos(const NoParams());
+    state = res.match(
+      (l) => AsyncError(l.message, StackTrace.current),
+      (r) => AsyncData(r),
+    );
+  }
+}
 EOF
 
+    cat > lib/src/features/todo/presentation/pages/todo_list_page.dart << 'EOF'
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/theme/app_theme.dart';
+import '../providers/todo_list_provider.dart';
+
+class TodoListPage extends ConsumerWidget {
+  const TodoListPage({super.key});
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(todoListProvider);
+    return GradientScaffold(
+      appBar: AppBar(title: const Text('Todos')),
+      child: state.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, _) => Center(child: _ErrorView(message: e.toString())),
+        data: (items) => _TodoList(items: items),
+      ),
+    );
+  }
+}
+
+class _TodoList extends StatelessWidget {
+  const _TodoList({required this.items});
+  final List<dynamic> items;
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      itemCount: items.length,
+      itemBuilder: (_, i) {
+        final todo = items[i];
+        return Card(
+          child: ListTile(
+            leading: CircleAvatar(
+              backgroundColor: (todo.completed as bool) ? cs.primaryContainer : cs.surfaceVariant,
+              child: Icon(
+                (todo.completed as bool) ? Icons.check_rounded : Icons.circle_outlined,
+                color: (todo.completed as bool) ? cs.onPrimaryContainer : cs.onSurfaceVariant,
+              ),
+            ),
+            title: Text(todo.title as String),
+            subtitle: Text('ID: ${todo.id}'),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _ErrorView extends StatelessWidget {
+  const _ErrorView({required this.message});
+  final String message;
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.error_outline, color: cs.error, size: 48),
+          const SizedBox(height: 12),
+          Text(message),
+        ],
+      ),
+    );
+  }
+}
+EOF
+    ;;
+  provider)
+    mkdir -p lib/src/features/todo/presentation/notifier lib/src/features/todo/presentation/pages
+    cat > lib/src/features/todo/presentation/notifier/todo_list_notifier.dart << 'EOF'
+import 'package:flutter/foundation.dart';
+import '../../../../core/usecase/usecase.dart';
+import '../../domain/entities/todo.dart';
+import '../../domain/usecases/get_todos.dart';
+
+enum ViewStatus { idle, loading, success, error }
+
+class TodoListNotifier extends ChangeNotifier {
+  TodoListNotifier(this._getTodos);
+  final GetTodos _getTodos;
+  ViewStatus status = ViewStatus.idle;
+  List<Todo> items = const [];
+  String? error;
+
+  Future<void> load() async {
+    status = ViewStatus.loading; notifyListeners();
+    final res = await _getTodos(const NoParams());
+    res.match(
+      (l) { status = ViewStatus.error; items = const []; error = l.message; notifyListeners(); },
+      (r) { status = ViewStatus.success; items = r; error = null; notifyListeners(); },
+    );
+  }
+}
+EOF
+
+    cat > lib/src/features/todo/presentation/pages/todo_list_page.dart << 'EOF'
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../../core/di/injection.dart';
+import '../../../core/theme/app_theme.dart';
+import '../../domain/usecases/get_todos.dart';
+import '../notifier/todo_list_notifier.dart';
+
+class TodoListPage extends StatelessWidget {
+  const TodoListPage({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (_) => TodoListNotifier(sl<GetTodos>())..load(),
+      child: GradientScaffold(
+        appBar: AppBar(title: const Text('Todos')),
+        child: Consumer<TodoListNotifier>(
+          builder: (context, vm, _) {
+            switch (vm.status) {
+              case ViewStatus.loading:
+                return const Center(child: CircularProgressIndicator());
+              case ViewStatus.error:
+                return Center(child: _ErrorView(message: vm.error ?? 'Something went wrong'));
+              case ViewStatus.success:
+                return _TodoList(items: vm.items);
+              case ViewStatus.idle:
+              default:
+                return const SizedBox.shrink();
+            }
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class _TodoList extends StatelessWidget {
+  const _TodoList({required this.items});
+  final List<dynamic> items;
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      itemCount: items.length,
+      itemBuilder: (_, i) {
+        final todo = items[i];
+        return Card(
+          child: ListTile(
+            leading: CircleAvatar(
+              backgroundColor: (todo.completed as bool) ? cs.primaryContainer : cs.surfaceVariant,
+              child: Icon(
+                (todo.completed as bool) ? Icons.check_rounded : Icons.circle_outlined,
+                color: (todo.completed as bool) ? cs.onPrimaryContainer : cs.onSurfaceVariant,
+              ),
+            ),
+            title: Text(todo.title as String),
+            subtitle: Text('ID: ${todo.id}'),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _ErrorView extends StatelessWidget {
+  const _ErrorView({required this.message});
+  final String message;
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.error_outline, color: cs.error, size: 48),
+          const SizedBox(height: 12),
+          Text(message),
+        ],
+      ),
+    );
+  }
+}
+EOF
+    ;;
+  getx)
+    mkdir -p lib/src/features/todo/presentation/controller lib/src/features/todo/presentation/pages
+    cat > lib/src/features/todo/presentation/controller/todo_controller.dart << 'EOF'
+import 'package:get/get.dart';
+import '../../../../core/di/injection.dart';
+import '../../../../core/usecase/usecase.dart';
+import '../../domain/entities/todo.dart';
+import '../../domain/usecases/get_todos.dart';
+
+class TodoController extends GetxController {
+  final items = <Todo>[].obs;
+  final loading = false.obs;
+  final error = RxnString();
+  final _getTodos = sl<GetTodos>();
+
+  @override
+  void onInit() {
+    super.onInit();
+    load();
+  }
+
+  Future<void> load() async {
+    loading.value = true; error.value = null; items.clear();
+    final res = await _getTodos(const NoParams());
+    res.match(
+      (l) => error.value = l.message,
+      (r) => items.assignAll(r),
+    );
+    loading.value = false;
+  }
+}
+EOF
+
+    cat > lib/src/features/todo/presentation/pages/todo_list_page.dart << 'EOF'
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import '../../../core/theme/app_theme.dart';
+import '../controller/todo_controller.dart';
+
+class TodoListPage extends StatelessWidget {
+  const TodoListPage({super.key});
+  @override
+  Widget build(BuildContext context) {
+    final c = Get.put(TodoController());
+    return GradientScaffold(
+      appBar: AppBar(title: const Text('Todos')),
+      child: Obx(() {
+        if (c.loading.value) return const Center(child: CircularProgressIndicator());
+        if (c.error.value != null) return Center(child: _ErrorView(message: c.error.value!));
+        return _TodoList(items: c.items);
+      }),
+    );
+  }
+}
+
+class _TodoList extends StatelessWidget {
+  const _TodoList({required this.items});
+  final List<dynamic> items;
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      itemCount: items.length,
+      itemBuilder: (_, i) {
+        final todo = items[i];
+        return Card(
+          child: ListTile(
+            leading: CircleAvatar(
+              backgroundColor: (todo.completed as bool) ? cs.primaryContainer : cs.surfaceVariant,
+              child: Icon(
+                (todo.completed as bool) ? Icons.check_rounded : Icons.circle_outlined,
+                color: (todo.completed as bool) ? cs.onPrimaryContainer : cs.onSurfaceVariant,
+              ),
+            ),
+            title: Text(todo.title as String),
+            subtitle: Text('ID: ${todo.id}'),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _ErrorView extends StatelessWidget {
+  const _ErrorView({required this.message});
+  final String message;
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.error_outline, color: cs.error, size: 48),
+          const SizedBox(height: 12),
+          Text(message),
+        ],
+      ),
+    );
+  }
+}
+EOF
+    ;;
+esac
+
 step "Writing app and main.dart"
-cat > lib/src/app.dart << 'EOF'
+if [[ "${ROUTER}" == "go_router" ]]; then
+  # Use MaterialApp.router for all variants when go_router is selected
+  cat > lib/src/app.dart << 'EOF'
+import 'package:flutter/material.dart';
+import 'core/constants/app_constants.dart';
+import 'core/theme/app_theme.dart';
+import 'core/router/app_router.dart';
+
+class App extends StatelessWidget {
+  const App({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp.router(
+      title: AppConstants.appName,
+      theme: buildLightTheme(),
+      darkTheme: buildDarkTheme(),
+      routerConfig: appRouter,
+    );
+  }
+}
+EOF
+else
+  case "${STATE_MGMT}" in
+    bloc|riverpod|provider)
+      cat > lib/src/app.dart << 'EOF'
 import 'package:flutter/material.dart';
 import 'features/todo/presentation/pages/todo_list_page.dart';
 import 'core/constants/app_constants.dart';
+import 'core/theme/app_theme.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -346,14 +970,54 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: AppConstants.appName,
-      theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue), useMaterial3: true),
+      theme: buildLightTheme(),
+      darkTheme: buildDarkTheme(),
       home: const TodoListPage(),
     );
   }
 }
 EOF
+      ;;
+    getx)
+      cat > lib/src/app.dart << 'EOF'
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'features/todo/presentation/pages/todo_list_page.dart';
+import 'core/constants/app_constants.dart';
+import 'core/theme/app_theme.dart';
 
-cat > lib/main.dart << 'EOF'
+class App extends StatelessWidget {
+  const App({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return GetMaterialApp(
+      title: AppConstants.appName,
+      theme: buildLightTheme(),
+      darkTheme: buildDarkTheme(),
+      home: const TodoListPage(),
+    );
+  }
+}
+EOF
+      ;;
+  esac
+fi
+
+if [[ "${STATE_MGMT}" == "riverpod" ]]; then
+  cat > lib/main.dart << 'EOF'
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'src/app.dart';
+import 'src/core/di/injection.dart';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await configureDependencies();
+  runApp(const ProviderScope(child: App()));
+}
+EOF
+else
+  cat > lib/main.dart << 'EOF'
 import 'package:flutter/material.dart';
 import 'src/app.dart';
 import 'src/core/di/injection.dart';
@@ -364,12 +1028,19 @@ Future<void> main() async {
   runApp(const App());
 }
 EOF
+fi
 
-step "Running code generation"
-dart run build_runner build --delete-conflicting-outputs >/dev/null
+if [[ "${SKIP_CODEGEN}" == false && "${PROFILE}" == "full" && "${SKIP_INSTALL}" == false ]]; then
+  step "Running code generation"
+  dart run build_runner build --delete-conflicting-outputs >/dev/null || warn "build_runner failed (you can rerun later)"
+fi
 
-step "Formatting Dart files"
-dart format lib >/dev/null
+if [[ "${SKIP_CODEGEN}" == false ]]; then
+  step "Formatting Dart files"
+  dart format lib >/dev/null || true
+fi
 
-ok "Clean Architecture (MVVM + BLoC + Dio) scaffolded."
-echo "Run: flutter run -d windows (or any device)"
+perl -pi -e "s/APP_NAME_PLACEHOLDER/\Q${APP_NAME}\E/g" lib/src/core/constants/app_constants.dart
+
+ok "Clean Architecture scaffolded with (${STATE_MGMT})."
+echo "Run: flutter run -d windows|macos|linux (or any device)"
