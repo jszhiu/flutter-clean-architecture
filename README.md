@@ -6,13 +6,13 @@ Usage
   - Run: `flutter create my_app`
   - `cd my_app`
 - Windows (PowerShell):
-  - `powershell -ExecutionPolicy Bypass -File .\scripts\setup_clean_arch.ps1`
+  - `powershell -ExecutionPolicy Bypass -File .\scripts\setup-windows.ps1`
 - macOS/Linux (Bash/Zsh):
-  - `chmod +x ./scripts/setup_clean_arch.sh`
-  - `./scripts/setup_clean_arch.sh`
+  - `chmod +x ./scripts/setup-unix.sh`
+  - `./scripts/setup-unix.sh`
 - Linux fish shell (also works on macOS fish):
-  - `chmod +x ./scripts/setup_clean_arch.fish`
-  - `fish ./scripts/setup_clean_arch.fish`
+  - `chmod +x ./scripts/setup-fish.fish`
+  - `fish ./scripts/setup-fish.fish`
 
 What this does
 
