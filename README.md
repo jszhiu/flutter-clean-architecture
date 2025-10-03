@@ -1,5 +1,6 @@
 Flutter Clean Architecture
 
+<img alt ="Clean Archtiecture Visual" src="https://github.com/Amir-beigi-84/flutter-clean-architecture/blob/main/docs/images/architecure.png"> 
 <p align="center">
   <em>MVVM + BLoC + Dio — a pragmatic, one-command Flutter scaffold.</em>
   <br/>
