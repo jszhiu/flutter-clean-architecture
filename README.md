@@ -132,17 +132,6 @@ Included:
 
 ---
 
-## Screenshots
-
-<p align="center">
-  <img alt="Architecture Layers: Presentation, Domain, Data, Core" src="docs/images/architecture_clean.svg" width="760">
-</p>
-
-- Light UI screenshot: `docs/screenshots/todo_list_light.png`
-- Dark UI screenshot: `docs/screenshots/todo_list_dark.png`
-
----
-
 ## Example Code
 
 ### Entity
