@@ -1,8 +1,8 @@
 # Flutter Clean Architecture
 <p align="center">
   <img alt="Flutter Clean Architecture Diagram"
-       src="https://raw.githubusercontent.com/Amir-beigi-84/flutter-clean-architecture/main/docs/images/architecture_clean.svg?sanitize=true"
-       width="760">
+       src="docs/images/architecture_clean.svg"
+       width="1200">
 </p>
 
 
