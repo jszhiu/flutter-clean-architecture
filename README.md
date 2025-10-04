@@ -1,8 +1,11 @@
 # Flutter Clean Architecture
 
 <p align="center">
-  <img alt="Flutter Clean Architecture Diagram" src="docs/images/architecture_clean.svg" width="760">
+  <img alt="Flutter Clean Architecture Diagram"
+       src="docs/images/architecture_clean.svg"
+       width="760">
 </p>
+
 
 <p align="center">
   <i>MVVM + BLoC + Dio — a pragmatic, one-command Flutter scaffold for production-ready apps.</i>
