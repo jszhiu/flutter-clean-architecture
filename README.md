@@ -1,9 +1,14 @@
-Flutter Clean Architecture
+# Flutter Clean Architecture
 
-<img alt ="Clean Archtiecture Visual" src="https://github.com/Amir-beigi-84/flutter-clean-architecture/blob/main/docs/images/architecure.png"> 
 <p align="center">
-  <em>MVVM + BLoC + Dio — a pragmatic, one-command Flutter scaffold.</em>
-  <br/>
+  <img alt="Flutter Clean Architecture Diagram" src="docs/images/architecture_clean.svg" width="760">
+</p>
+
+<p align="center">
+  <i>MVVM + BLoC + Dio — a pragmatic, one-command Flutter scaffold for production-ready apps.</i>
+</p>
+
+<p align="center">
   <img alt="Flutter Clean" src="https://img.shields.io/badge/Flutter-Clean%20Architecture-02569B?logo=flutter&logoColor=white&style=for-the-badge">
   <a href="https://github.com/Amir-beigi-84/flutter-clean-architecture/stargazers">
     <img alt="Stars" src="https://img.shields.io/github/stars/Amir-beigi-84/flutter-clean-architecture?style=for-the-badge&color=FFC83D">
@@ -14,133 +19,132 @@ Flutter Clean Architecture
   <img alt="License" src="https://img.shields.io/github/license/Amir-beigi-84/flutter-clean-architecture?style=for-the-badge&color=4CAF50">
 </p>
 
-Quick Start
+---
 
-- Create app: `flutter create my_app && cd my_app`
-- No copying needed. Run one of these from your project root:
-  - Windows (PowerShell): `powershell -ExecutionPolicy Bypass -File scripts\\setup-windows.ps1`
-  - macOS/Linux (Bash/Zsh): `chmod +x scripts/setup-unix.sh && scripts/setup-unix.sh`
-  - fish: `chmod +x scripts/setup-fish.fish && fish scripts/setup-fish.fish`
+## Overview
 
-Global Command (recommended)
+This repository provides a clean, opinionated Flutter scaffold that follows **Clean Architecture** with **MVVM** and supports multiple state-management styles (**BLoC**, **Riverpod**, **Provider**, **GetX**). It includes dependency injection with `get_it`, HTTP networking via `dio`, functional helpers (`fpdart`), and code generation setup.
 
-- One-time install to PATH:
-  - macOS/Linux: `chmod +x scripts/install-unix.sh && scripts/install-unix.sh`
-  - Windows: `powershell -ExecutionPolicy Bypass -File scripts\install-windows.ps1`
-  - fish (optional): `chmod +x scripts/install-fish.fish && fish scripts/install-fish.fish`
+Search-intent terms covered: *flutter clean architecture*, *flutter mvvm*, *flutter bloc scaffold*, *flutter riverpod template*, *dio get_it architecture*.
 
-- Then use the global command from any Flutter project: `flutter-clean --state riverpod --name "My Beautiful App"`
+---
 
-Auto Mode
+## Quick Start
 
-- Use `--auto` to infer sensible defaults from `pubspec.yaml`:
-  - Detects app `name:` and sets display name automatically
-  - Chooses state management if a dependency exists (`flutter_riverpod`, `provider`, `get`), defaults to `bloc`
-  - Example: `flutter-clean --auto`
+Create and scaffold a new app:
 
-State Management Options
+```bash
+flutter create my_app && cd my_app
+```
 
-- The Unix script now lets you choose a state management style interactively or via flag:
-  - `bloc` (default): `flutter_bloc` Cubit presentation
-  - `riverpod`: `flutter_riverpod` with `StateNotifier`
-  - `provider`: `provider` with `ChangeNotifier`
-  - `getx`: `get` with `GetxController`
+Run setup:
 
-Router Option
+- **Windows (PowerShell)**
+  ```powershell
+  powershell -ExecutionPolicy Bypass -File scripts\setup-windows.ps1
+  ```
+- **macOS/Linux (Bash/Zsh)**
+  ```bash
+  chmod +x scripts/setup-unix.sh && scripts/setup-unix.sh
+  ```
+- **fish**
+  ```bash
+  chmod +x scripts/setup-fish.fish && fish scripts/setup-fish.fish
+  ```
 
-- Choose navigation style interactively or via flag:
-  - `--router go_router` to enable `go_router` and scaffold `lib/src/core/router/app_router.dart`
-  - `--router none` to use standard Navigator and a `home:` page
-  - In auto mode, the scripts detect `go_router` in `pubspec.yaml` and enable it.
+### Global command (recommended)
 
-Examples
+Install once and use in any project:
 
-- Interactive (shows a menu):
-  - Windows: `powershell -ExecutionPolicy Bypass -File scripts\setup-windows.ps1`
-  - Unix: `scripts/setup-unix.sh`
-  - fish: `fish scripts/setup-fish.fish`
-- Non-interactive with Riverpod:
-  - Windows: `scripts\setup-windows.ps1 --state riverpod`
-  - Unix: `scripts/setup-unix.sh --state riverpod`
-  - fish: `scripts/setup-fish.fish --state riverpod`
-- With go_router enabled:
-  - Windows: `scripts\setup-windows.ps1 --state bloc --router go_router`
-  - Unix: `scripts/setup-unix.sh --state bloc --router go_router`
-  - Global: `flutter-clean --state bloc --router go_router`
-- Set app display name:
-  - Windows: `scripts\setup-windows.ps1 --state bloc --name "My Beautiful App"`
-  - Unix: `scripts/setup-unix.sh --state bloc --name "My Beautiful App"`
-  - fish: `scripts/setup-fish.fish --state bloc --name "My Beautiful App"`
-  - With global command: `flutter-clean --state bloc --name "My Beautiful App"`
+```bash
+# macOS/Linux
+chmod +x scripts/install-unix.sh && scripts/install-unix.sh
 
-Fast Profiles and Flags
+# Windows
+powershell -ExecutionPolicy Bypass -File scripts\install-windows.ps1
+```
 
-- `--profile minimal|standard|full` (default: `standard`)
-  - `minimal`: installs only essentials (DI, HTTP, chosen state lib) — fastest
-  - `standard`: adds connectivity + logging
-  - `full`: adds prefs, secure storage, fpdart, json_serializable, and codegen
-- `--skip-install`: writes files only, you can add packages later
-- `--skip-codegen`: skips `build_runner` and formatting steps
+Then scaffold:
 
-GitHub Best Practices
+```bash
+flutter-clean --state riverpod --name "My App"
+```
 
-- Initialize and push your project repository:
-  - `git init`
-  - `git add . && git commit -m "chore: scaffold clean architecture"`
-  - Create a new repo on GitHub, then:
-    - `git remote add origin https://github.com/<you>/<repo>.git`
-    - `git branch -M main && git push -u origin main`
-- Keep secrets out of Git:
-  - Do not commit `.env` or any API keys; prefer platform-specific secure storage or CI secrets.
-- CI (optional but recommended):
-  - Add a simple workflow to run `flutter analyze` and `flutter test` on PRs.
+---
 
-What You Get
+## Auto Mode
 
-- Batteries-included deps: `get_it`, `flutter_bloc`, `dio`, `fpdart`, `equatable`, `connectivity_plus`, `json_*`.
-- Clean layers under `lib/src/` with a sample `todo` feature.
-- DI setup (`get_it`), `Dio` client + logging, `build_runner` codegen.
-- Minimal `main.dart` bootstrap and opinionated lints.
+```bash
+flutter-clean --auto
+```
+- Infers app name from `pubspec.yaml`
+- Auto-selects state management if it finds `flutter_riverpod`, `provider`, or `get`
+- Defaults to **BLoC** otherwise
 
-Run
+---
 
-- `flutter run -d windows|macos|linux` (or any device)
+## Options
 
-Stack
+### State management
+- `bloc` (default)
+- `riverpod`
+- `provider`
+- `getx`
 
-- Architecture: MVVM + Clean layers
-- State: `flutter_bloc` | `flutter_riverpod` | `provider` | `get`
-- Networking: `dio` + `pretty_dio_logger`
-- DI: `get_it`
-- Functional core: `fpdart`
+### Router
+- `--router go_router` → generates `lib/src/core/router/app_router.dart`
+- `--router none` → default Navigator
 
-Why
+### Profiles
+- `--profile minimal` → essentials (DI, HTTP, chosen state lib)
+- `--profile standard` → + connectivity + logging
+- `--profile full` → + prefs, secure storage, fpdart, json_serializable, codegen
 
-- Ship a clean baseline fast without yak-shaving.
-- Consistent structure for multi-feature apps.
-- Easy to tear out or extend pieces as you go.
+### Common flags
+- `--skip-install` → write files only
+- `--skip-codegen` → skip build_runner/formatting
 
-Screenshots
+---
+
+## Structure
+
+```
+lib/src/
+  core/
+    di/
+    error/
+    network/
+  features/
+    todo/
+      data/
+      domain/
+      presentation/
+```
+
+Included:
+- DI via `get_it`
+- Networking via `dio` + logging
+- Functional core via `fpdart` + `equatable`
+- Example feature: `todo` (domain/data/presentation)
+- Material 3 baseline theme and a minimal gradient shell
+
+---
+
+## Screenshots
 
 <p align="center">
-  <img alt="Architecture Diagram" src="docs/images/architecture.svg" width="720">
+  <img alt="Architecture Layers: Presentation, Domain, Data, Core" src="docs/images/architecture_clean.svg" width="760">
 </p>
 
-- Todo List (Light): `docs/screenshots/todo_list_light.png`
-- Todo List (Dark): `docs/screenshots/todo_list_dark.png`
+- Light UI screenshot: `docs/screenshots/todo_list_light.png`
+- Dark UI screenshot: `docs/screenshots/todo_list_dark.png`
 
-Tip: Drop your real screenshots into `docs/screenshots/` with the names above to render them here automatically.
+---
 
-Notes
+## Example Code
 
-- All scripts include a polished Material 3 theme and a gradient background shell around the main Scaffold for a clean, modern look.
-
-Code Snippets
-
-Entity
-
+### Entity
 ```dart
-// lib/src/features/todo/domain/entities/todo.dart
 import 'package:equatable/equatable.dart';
 
 class Todo extends Equatable {
@@ -153,10 +157,8 @@ class Todo extends Equatable {
 }
 ```
 
-Use Case
-
+### Use Case
 ```dart
-// lib/src/features/todo/domain/usecases/get_todos.dart
 import 'package:fpdart/fpdart.dart';
 import '../../../../core/usecase/usecase.dart';
 import '../../../../core/error/failures.dart';
@@ -171,10 +173,8 @@ class GetTodos implements UseCase<List<Todo>, NoParams> {
 }
 ```
 
-Repository
-
+### Repository (interface)
 ```dart
-// lib/src/features/todo/domain/repositories/todo_repository.dart
 import 'package:fpdart/fpdart.dart';
 import '../../../../core/error/failures.dart';
 import '../entities/todo.dart';
@@ -184,10 +184,8 @@ abstract class TodoRepository {
 }
 ```
 
-Repository Impl
-
+### Repository (implementation)
 ```dart
-// lib/src/features/todo/data/repositories/todo_repository_impl.dart
 import 'package:fpdart/fpdart.dart';
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
@@ -218,10 +216,8 @@ class TodoRepositoryImpl implements TodoRepository {
 }
 ```
 
-Cubit (Presentation)
-
+### Cubit
 ```dart
-// lib/src/features/todo/presentation/cubit/todo_cubit.dart
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/usecase/usecase.dart';
 import '../../domain/entities/todo.dart';
@@ -230,8 +226,14 @@ import '../../domain/usecases/get_todos.dart';
 sealed class TodoState {}
 class TodoInitial extends TodoState {}
 class TodoLoading extends TodoState {}
-class TodoLoaded extends TodoState { TodoLoaded(this.items); final List<Todo> items; }
-class TodoError extends TodoState { TodoError(this.message); final String message; }
+class TodoLoaded extends TodoState {
+  TodoLoaded(this.items);
+  final List<Todo> items;
+}
+class TodoError extends TodoState {
+  TodoError(this.message);
+  final String message;
+}
 
 class TodoCubit extends Cubit<TodoState> {
   TodoCubit(this._getTodos) : super(TodoInitial());
@@ -248,36 +250,26 @@ class TodoCubit extends Cubit<TodoState> {
 }
 ```
 
-Bootstrap
+---
 
-```dart
-// lib/main.dart
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'src/core/di/injection.dart';
-import 'src/features/todo/presentation/cubit/todo_cubit.dart';
-import 'src/features/todo/domain/usecases/get_todos.dart';
+## Run
 
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await configureDependencies();
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Clean MVVM App',
-      home: BlocProvider(
-        create: (_) => TodoCubit(sl<GetTodos>())..load(),
-        child: const Scaffold(
-          appBar: AppBar(title: Text('Todos')),
-          body: Center(child: Text('…')), // Replace with your UI
-        ),
-      ),
-    );
-  }
-}
+```bash
+flutter run -d windows|macos|linux
 ```
+
+---
+
+## Repository hygiene and SEO
+
+- Keep secrets out of Git (do not commit `.env` or keys). Use secure storage or CI secrets.
+- Consider a CI workflow that runs `flutter analyze` and `flutter test` on pull requests.
+- Use precise, searchable terms in headings and alt text: *Flutter Clean Architecture*, *MVVM*, *BLoC*, *Riverpod*, *Dio*.
+- Add GitHub topics (Settings → About → Topics): `flutter`, `clean-architecture`, `bloc`, `riverpod`, `mvvm`, `dio`, `get_it`, `template`, `scaffold`.
+- Keep the README concise and scannable; link out to in-depth docs as the project grows.
+
+---
+
+## License
+
+[MIT](LICENSE)
