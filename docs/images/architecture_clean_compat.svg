@@ -1,0 +1,71 @@
+
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">Flutter Clean Architecture Diagram (Compat)</title>
+  <desc id="desc">Presentation, Domain, Data, Core with external HTTP and Local Storage.</desc>
+
+  <rect x="0" y="0" width="1200" height="720" fill="#0D1117"/>
+
+  <g font-family="Inter, Segoe UI, Roboto, Arial, sans-serif">
+    <text x="600" y="48" text-anchor="middle" font-size="28" font-weight="700" fill="#E3F2FD">
+      Flutter Clean Architecture
+    </text>
+    <text x="600" y="74" text-anchor="middle" font-size="15" fill="#B0BEC5">
+      Presentation → Domain → Data → Core • MVVM • BLoC/Riverpod • Dio • get_it • fpdart
+    </text>
+
+    <rect x="60" y="540" width="1080" height="120" rx="16" fill="#1a2329" stroke="#37474F"/>
+    <text x="84" y="572" font-size="18" font-weight="700" fill="#ECEFF1">Core</text>
+    <text x="84" y="598" font-size="14" fill="#CFD8DC">DI (get_it) • Error • Logger • Config • NetworkInfo</text>
+    <rect x="990" y="560" width="120" height="32" rx="8" fill="#0f151b" stroke="#2c3a44"/>
+    <text x="1002" y="581" font-size="13" fill="#CFD8DC">get_it</text>
+    <rect x="990" y="598" width="120" height="32" rx="8" fill="#0f151b" stroke="#2c3a44"/>
+    <text x="1002" y="619" font-size="13" fill="#CFD8DC">fpdart</text>
+
+    <rect x="60" y="390" width="1080" height="130" rx="16" fill="#2a220a" stroke="#8D6E00"/>
+    <text x="84" y="422" font-size="18" font-weight="700" fill="#ECEFF1">Data</text>
+    <text x="84" y="448" font-size="14" fill="#CFD8DC">Repositories (impl) • Data Sources • DTOs • Mappers</text>
+    <rect x="84" y="462" width="220" height="40" rx="10" fill="#0f1115" stroke="#455A64"/>
+    <text x="96" y="487" font-size="13" fill="#CFD8DC">RepositoryImpl</text>
+    <rect x="324" y="462" width="220" height="40" rx="10" fill="#0f1115" stroke="#455A64"/>
+    <text x="336" y="487" font-size="13" fill="#CFD8DC">RemoteDataSource (Dio)</text>
+    <rect x="564" y="462" width="220" height="40" rx="10" fill="#0f1115" stroke="#455A64"/>
+    <text x="576" y="487" font-size="13" fill="#CFD8DC">LocalDataSource</text>
+    <rect x="804" y="462" width="316" height="40" rx="10" fill="#0f1115" stroke="#455A64"/>
+    <text x="816" y="487" font-size="13" fill="#CFD8DC">Models / DTOs • Mapping to Entities</text>
+
+    <rect x="60" y="250" width="1080" height="120" rx="16" fill="#0e2a22" stroke="#1B5E20"/>
+    <text x="84" y="282" font-size="18" font-weight="700" fill="#ECEFF1">Domain</text>
+    <text x="84" y="308" font-size="14" fill="#CFD8DC">Entities • UseCases • Repository (abstraction)</text>
+    <rect x="84" y="322" width="220" height="36" rx="8" fill="#0f1115" stroke="#455A64"/>
+    <text x="96" y="346" font-size="13" fill="#CFD8DC">Entities</text>
+    <rect x="324" y="322" width="220" height="36" rx="8" fill="#0f1115" stroke="#455A64"/>
+    <text x="336" y="346" font-size="13" fill="#CFD8DC">UseCases</text>
+    <rect x="564" y="322" width="300" height="36" rx="8" fill="#0f1115" stroke="#455A64"/>
+    <text x="576" y="346" font-size="13" fill="#CFD8DC">Repository (interface)</text>
+
+    <rect x="60" y="120" width="1080" height="110" rx="16" fill="#0f2340" stroke="#1A3C66"/>
+    <text x="84" y="152" font-size="18" font-weight="700" fill="#ECEFF1">Presentation</text>
+    <text x="84" y="178" font-size="14" fill="#CFD8DC">Widgets • ViewModels/Cubits • Pages</text>
+    <rect x="84" y="190" width="240" height="30" rx="8" fill="#0f1115" stroke="#455A64"/>
+    <text x="96" y="210" font-size="13" fill="#CFD8DC">Widgets / Pages</text>
+    <rect x="344" y="190" width="260" height="30" rx="8" fill="#0f1115" stroke="#455A64"/>
+    <text x="356" y="210" font-size="13" fill="#CFD8DC">ViewModel / Cubit (BLoC | Riverpod)</text>
+    <rect x="624" y="190" width="220" height="30" rx="8" fill="#0f1115" stroke="#455A64"/>
+    <text x="636" y="210" font-size="13" fill="#CFD8DC">State & Effects</text>
+
+    <rect x="955" y="220" width="185" height="50" rx="10" fill="#0f1115" stroke="#455A64"/>
+    <text x="967" y="251" font-size="13" fill="#CFD8DC">HTTP API (Dio)</text>
+    <rect x="955" y="280" width="185" height="50" rx="10" fill="#0f1115" stroke="#455A64"/>
+    <text x="967" y="311" font-size="13" fill="#CFD8DC">Local Storage</text>
+
+    <rect x="598" y="220" width="4" height="20" fill="#B0BEC5"/>
+    <rect x="598" y="360" width="4" height="20" fill="#B0BEC5"/>
+    <rect x="598" y="510" width="4" height="20" fill="#B0BEC5"/>
+    <rect x="930" y="235" width="25" height="2" fill="#B0BEC5"/>
+    <rect x="910" y="295" width="45" height="2" fill="#B0BEC5"/>
+
+    <text x="60" y="690" font-size="13" fill="#B0BEC5">
+      UI depends on Domain; Domain is pure; Data implements Repository interfaces; Core provides cross-cutting concerns.
+    </text>
+  </g>
+</svg>
